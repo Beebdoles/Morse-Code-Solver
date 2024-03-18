@@ -12,6 +12,7 @@ namespace Morse_Code_Solver
         private List<string> morseLights = new List<string>();
         private List<string> morse = new List<string>();
         private int numOfUnits = 0;
+        private Bitmap bitmap = new Bitmap(1, 1);
 
         public Form1()
         {
@@ -35,13 +36,12 @@ namespace Morse_Code_Solver
 
         private void takeColour(int n)
         {
-            Bitmap bitmap = new Bitmap(1, 1);
             Rectangle bounds = new Rectangle(MousePosition.X, MousePosition.Y, 1, 1);
             using (Graphics graphics = Graphics.FromImage(bitmap))
                 graphics.CopyFromScreen(bounds.Location, Point.Empty, bounds.Size);
             Color colour = bitmap.GetPixel(0, 0);
 
-            label1.Text = colour.ToString();
+            //label1.Text = colour.ToString();
             pictureBox1.BackColor = colour;
 
             listOfColours[n] = colour;
@@ -58,6 +58,7 @@ namespace Morse_Code_Solver
         {
             if (buttonState)
             {
+                Thread.Sleep(3000);
                 buttonState = false;
                 label2.Text = "";
                 label3.Text = "";
@@ -95,7 +96,7 @@ namespace Morse_Code_Solver
                     double distance1 = Math.Sqrt(Math.Pow(tempColour.R, 2) + Math.Pow(tempColour.G - 6, 2) + Math.Pow(tempColour.B - 16, 2));
                     double distance2 = Math.Sqrt(Math.Pow(tempColour.R - 255, 2) + Math.Pow(tempColour.G - 237, 2) + Math.Pow(tempColour.B - 59, 2));
 
-                    if (distance1 < distance2)
+                    if (distance1 > distance2)
                     {
                         morseLights.Add("1");
                         label3.Text += "1";
@@ -132,6 +133,7 @@ namespace Morse_Code_Solver
                     else
                     {
                         condition = false;
+                        --i;
                     }
                 }
                 if (symbol.Equals("1"))
@@ -140,18 +142,18 @@ namespace Morse_Code_Solver
                     {
                         morse.Add(".");
                     }
-                    else
+                    else if(length == 2 || length == 3) //error range
                     {
                         morse.Add("-");
                     }
                 }
                 else
                 {
-                    if (length == 3)
+                    if (length == 3 || length == 4) //error range
                     {
                         morse.Add("/");
                     }
-                    else
+                    else if(length != 1)
                     {
                         morse.Add("|");
                     }

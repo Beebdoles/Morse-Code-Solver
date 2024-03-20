@@ -96,7 +96,7 @@ namespace Morse_Code_Solver
                     double distance1 = Math.Sqrt(Math.Pow(tempColour.R, 2) + Math.Pow(tempColour.G - 6, 2) + Math.Pow(tempColour.B - 16, 2));
                     double distance2 = Math.Sqrt(Math.Pow(tempColour.R - 255, 2) + Math.Pow(tempColour.G - 237, 2) + Math.Pow(tempColour.B - 59, 2));
 
-                    if (distance1 > distance2)
+                    if (distance1 > distance2) //this is wacky, but apparently farther away => closer colour???
                     {
                         morseLights.Add("1");
                         label3.Text += "1";
@@ -142,14 +142,14 @@ namespace Morse_Code_Solver
                     {
                         morse.Add(".");
                     }
-                    else if(length == 2 || length == 3) //error range
+                    else if(length == 2 || length == 3 || length == 4) //error range
                     {
                         morse.Add("-");
                     }
                 }
                 else
                 {
-                    if (length == 3 || length == 4) //error range
+                    if (length == 3 || length == 4 || length == 2) //error range
                     {
                         morse.Add("/");
                     }

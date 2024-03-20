@@ -8,18 +8,16 @@ namespace Morse_Code_Solver
     public partial class Form1 : Form
     {
         private Boolean buttonState = true;
-        private Color[] listOfColours;
         private List<string> morseLights = new List<string>();
         private List<string> morse = new List<string>();
-        private int numOfUnits = 0;
         private Bitmap bitmap = new Bitmap(1, 1);
 
         private int lightLengthCount = 0;
         private Boolean isStart = false;
 
-        private string[] listOfMorseCodeReps = 
-            { 
-                ".-", "-...", "-.-.", "-..", ".", "..-.", "--.", "....", "..", ".---", "-.-", ".-..", "--", 
+        private string[] listOfMorseCodeReps =
+            {
+                ".-", "-...", "-.-.", "-..", ".", "..-.", "--.", "....", "..", ".---", "-.-", ".-..", "--",
                 "-.", "---", ".--.", "--.-", ".-.", "...", "-", "..-", "...-", ".--", "-..-", "-.--", "--.."
             };
 
@@ -43,7 +41,7 @@ namespace Morse_Code_Solver
 
         }
 
-        private void takeColour(int n)
+        private void takeColour()   //attempt is being made to make program self detect the end of a word
         {
             Rectangle bounds = new Rectangle(MousePosition.X, MousePosition.Y, 1, 1);
             using (Graphics graphics = Graphics.FromImage(bitmap))
@@ -53,17 +51,27 @@ namespace Morse_Code_Solver
             //label1.Text = colour.ToString();
             pictureBox1.BackColor = colour;
 
-            listOfColours[n] = colour;
+            string morseLight = ColourToPseudoMorse(colour);
+            morseLights.Add(morseLight);
+
+            if(morseLight.Equals("0"))
+            {
+                ++lightLengthCount;
+            }
+            if(lightLengthCount >= 5)
+            {
+                timer2.Enabled = isStart;   //praying this acts like a toggle
+                isStart = !isStart;
+                lightLengthCount = 0;
+            }
         }
 
         private void timer2_Tick(object sender, EventArgs e)
         {
-            takeColour(numOfUnits);
-            ++numOfUnits;
-            //pictureBox2.BackColor
+            takeColour();
         }
 
-        private void button1_Click(object sender, EventArgs e)
+        private void button1_Click(object sender, EventArgs e) //will implement to work with the other takeColour function
         {
             if (buttonState)
             {
@@ -72,56 +80,29 @@ namespace Morse_Code_Solver
                 label2.Text = "";
                 label3.Text = "";
                 label4.Text = "";
-                numOfUnits = 0;
-                listOfColours = new Color[5000];
                 morseLights.Clear();
                 morse.Clear();
                 timer2.Enabled = true;
-            }
-            else
-            {
-                timer2.Enabled = false;
-                buttonState = true;
-                colourToPseudoMorse();
-                pseudoMorseToMorse();
-                string rep = "";
-                for (int i = 0; i < morse.Count; ++i)
-                {
-                    rep += morse[i];
-                }
-                label2.Text = rep;
+                isStart = true;
             }
         }
 
-        private void colourToPseudoMorse()
+        private string ColourToPseudoMorse(Color colour)
         {
-            for (int i = 0; i < listOfColours.Length; ++i)
+            //set default as RGB(0, 6, 16) for black, RGB(255, 237, 59)
+
+            double distance1 = Math.Sqrt(Math.Pow(colour.R, 2) + Math.Pow(colour.G - 6, 2) + Math.Pow(colour.B - 16, 2));
+            double distance2 = Math.Sqrt(Math.Pow(colour.R - 255, 2) + Math.Pow(colour.G - 237, 2) + Math.Pow(colour.B - 59, 2));
+
+            if (distance1 > distance2) //this is wacky, but apparently farther away => closer colour???
             {
-                if (listOfColours[i] != Color.Empty)
-                {
-                    Color tempColour = listOfColours[i];
-                    //set default as RGB(0, 6, 16) for black, RGB(255, 237, 59)
-
-                    double distance1 = Math.Sqrt(Math.Pow(tempColour.R, 2) + Math.Pow(tempColour.G - 6, 2) + Math.Pow(tempColour.B - 16, 2));
-                    double distance2 = Math.Sqrt(Math.Pow(tempColour.R - 255, 2) + Math.Pow(tempColour.G - 237, 2) + Math.Pow(tempColour.B - 59, 2));
-
-                    if (distance1 > distance2) //this is wacky, but apparently farther away => closer colour???
-                    {
-                        morseLights.Add("1");
-                        label3.Text += "1";
-                    }
-                    else
-                    {
-                        morseLights.Add("0");
-                        label3.Text += "0";
-                    }
-                    label4.Text += distance1 + " " + distance2 + " ";
-                }
-                else
-                {
-                    i = 10001;
-                }
-                //label2.Text += String.Join("", morseLights);
+                label3.Text += "1";
+                return "1";
+            }
+            else
+            {
+                label3.Text += "0";
+                return "0";
             }
         }
 
@@ -151,7 +132,7 @@ namespace Morse_Code_Solver
                     {
                         morse.Add(".");
                     }
-                    else if(length == 2 || length == 3 || length == 4) //error range
+                    else if (length == 2 || length == 3 || length == 4) //error range
                     {
                         morse.Add("-");
                     }
@@ -162,7 +143,7 @@ namespace Morse_Code_Solver
                     {
                         morse.Add("/");
                     }
-                    else if(length != 1)
+                    else if (length != 1)
                     {
                         morse.Add("|");
                     }
@@ -172,7 +153,7 @@ namespace Morse_Code_Solver
 
         private string decoder(string code) //decodes each morse string into the corresponding letter
         {
-            for(int i = 0; i < listOfMorseCodeReps.Length; ++i)
+            for (int i = 0; i < listOfMorseCodeReps.Length; ++i)
             {
                 if (code.Equals(listOfMorseCodeReps[i]))
                 {
@@ -183,7 +164,10 @@ namespace Morse_Code_Solver
         }
     }
 
-    //add a lookup table for morse code values :)
+    
+}
+
     //(0 6 16) (4 7 13) (7 9 18)              (255 237 59) (255 221 61) (255 226 58)
     //5.1, 7.87                                //16.1, 11
-}
+
+//there is no way this code currently works rn

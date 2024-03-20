@@ -14,6 +14,15 @@ namespace Morse_Code_Solver
         private int numOfUnits = 0;
         private Bitmap bitmap = new Bitmap(1, 1);
 
+        private int lightLengthCount = 0;
+        private Boolean isStart = false;
+
+        private string[] listOfMorseCodeReps = 
+            { 
+                ".-", "-...", "-.-.", "-..", ".", "..-.", "--.", "....", "..", ".---", "-.-", ".-..", "--", 
+                "-.", "---", ".--.", "--.-", ".-.", "...", "-", "..-", "...-", ".--", "-..-", "-.--", "--.."
+            };
+
         public Form1()
         {
             InitializeComponent();
@@ -159,6 +168,18 @@ namespace Morse_Code_Solver
                     }
                 }
             }
+        }
+
+        private string decoder(string code) //decodes each morse string into the corresponding letter
+        {
+            for(int i = 0; i < listOfMorseCodeReps.Length; ++i)
+            {
+                if (code.Equals(listOfMorseCodeReps[i]))
+                {
+                    return ((char)(i + 97)).ToString();
+                }
+            }
+            return "[oof]"; //smth went wrong if this is returned
         }
     }
 

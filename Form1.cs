@@ -1,6 +1,7 @@
 using System.Drawing;
 using System.Drawing.Configuration;
 using System.Reflection.Emit;
+using System.Text;
 using System.Threading;
 
 namespace Morse_Code_Solver
@@ -9,17 +10,15 @@ namespace Morse_Code_Solver
     {
         private Boolean buttonState = true;
         private Color[] listOfColours;
-        private List<string> morseLights = new List<string>();
-        private List<string> morse = new List<string>();
         private int numOfUnits = 0;
         private Bitmap bitmap = new Bitmap(1, 1);
 
         private int lightLengthCount = 0;
         private Boolean isStart = false;
 
-        private string[] listOfMorseCodeReps = 
-            { 
-                ".-", "-...", "-.-.", "-..", ".", "..-.", "--.", "....", "..", ".---", "-.-", ".-..", "--", 
+        private string[] listOfMorseCodeReps =
+            {
+                ".-", "-...", "-.-.", "-..", ".", "..-.", "--.", "....", "..", ".---", "-.-", ".-..", "--",
                 "-.", "---", ".--.", "--.-", ".-.", "...", "-", "..-", "...-", ".--", "-..-", "-.--", "--.."
             };
 
@@ -74,27 +73,19 @@ namespace Morse_Code_Solver
                 label4.Text = "";
                 numOfUnits = 0;
                 listOfColours = new Color[5000];
-                morseLights.Clear();
-                morse.Clear();
                 timer2.Enabled = true;
             }
             else
             {
                 timer2.Enabled = false;
                 buttonState = true;
-                colourToPseudoMorse();
-                pseudoMorseToMorse();
-                string rep = "";
-                for (int i = 0; i < morse.Count; ++i)
-                {
-                    rep += morse[i];
-                }
-                label2.Text = rep;
+                string rep = decoder(pseudoMorseToMorse(colourToPseudoMorse()));
             }
         }
 
-        private void colourToPseudoMorse()
+        private List<string> colourToPseudoMorse()
         {
+            List<string> morseLights = new List<string>();
             for (int i = 0; i < listOfColours.Length; ++i)
             {
                 if (listOfColours[i] != Color.Empty)
@@ -119,19 +110,21 @@ namespace Morse_Code_Solver
                 }
                 else
                 {
-                    i = 10001;
+                    i = 10001;                                                  //pure band aid fix
                 }
-                //label2.Text += String.Join("", morseLights);
             }
+            return morseLights;
         }
 
-        private void pseudoMorseToMorse()
+        private List<string> pseudoMorseToMorse(List<string> morseLights)
         {
+            List<string> morse = new List<string>();
             for (int i = 0; i < morseLights.Count; ++i)
             {
                 string symbol = morseLights[i];
                 int length = 0;
                 Boolean condition = true;
+                string code = "";
                 while (condition)
                 {
                     if (i < morseLights.Count && morseLights[i].Equals(symbol))
@@ -149,41 +142,55 @@ namespace Morse_Code_Solver
                 {
                     if (length == 1)
                     {
-                        morse.Add(".");
+                        code += ".";                    //appends to code
                     }
-                    else if(length == 2 || length == 3) //error range
+                    else if (length == 2 || length == 3) //error range
                     {
-                        morse.Add("-");
+                        code += "-";                    //appends to code
                     }
                 }
                 else
                 {
-                    if (length == 3 || length == 4) //error range
+                    if (length == 3 || length == 4)     //error range
                     {
-                        morse.Add("/");
+                        morse.Add(code);                //pushes to list as single string
+                        code = "";
                     }
-                    else if(length != 1)
+                    else if (length != 1)
                     {
-                        morse.Add("|");
+                        morse.Add(code);
+                        morse.Add("|");                 //detects for end of message
+                        code = "";
                     }
                 }
             }
+            return morse;
         }
 
-        private string decoder(string code) //decodes each morse string into the corresponding letter
+        private string decoder(List<string> codes)                         //decodes each morse string into the corresponding letter
         {
-            for(int i = 0; i < listOfMorseCodeReps.Length; ++i)
+            StringBuilder sb = new StringBuilder();
+            for (int i = 0; i < listOfMorseCodeReps.Length; ++i)
             {
-                if (code.Equals(listOfMorseCodeReps[i]))
+                for (int j = 0; j < codes.Count; ++j)
                 {
-                    return ((char)(i + 97)).ToString();
+                    if (codes[j].Equals(listOfMorseCodeReps[i]))            //the lookup table cancer, terribly inneficient ik :(
+                    {
+                        sb.Append((char)(i + 97)).ToString();
+                    }
+                    else if (codes[j].Equals("|"))
+                    {
+                        sb.Append("|");
+                    }
+                    else
+                    {
+                        sb.Append("[uh oh");                                //smth went wrong
+                    }
                 }
             }
-            return "[oof]"; //smth went wrong if this is returned
+            return sb.ToString(); 
         }
     }
-
-    //add a lookup table for morse code values :)
+}
     //(0 6 16) (4 7 13) (7 9 18)              (255 237 59) (255 221 61) (255 226 58)
     //5.1, 7.87                                //16.1, 11
-}

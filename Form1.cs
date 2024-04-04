@@ -42,7 +42,7 @@ namespace Morse_Code_Solver
 
         }
 
-        private void takeColour()   //attempt is being made to make program self detect the end of a word
+        private void takeColour(int n)
         {
             Rectangle bounds = new Rectangle(MousePosition.X, MousePosition.Y, 1, 1);
             using (Graphics graphics = Graphics.FromImage(bitmap))
@@ -52,27 +52,17 @@ namespace Morse_Code_Solver
             //label1.Text = colour.ToString();
             pictureBox1.BackColor = colour;
 
-            string morseLight = ColourToPseudoMorse(colour);
-            morseLights.Add(morseLight);
-
-            if(morseLight.Equals("0"))
-            {
-                ++lightLengthCount;
-            }
-            if(lightLengthCount >= 5)
-            {
-                timer2.Enabled = isStart;   //praying this acts like a toggle
-                isStart = !isStart;
-                lightLengthCount = 0;
-            }
+            listOfColours[n] = colour;
         }
 
         private void timer2_Tick(object sender, EventArgs e)
         {
-            takeColour();
+            takeColour(numOfUnits);
+            ++numOfUnits;
+            //pictureBox2.BackColor
         }
 
-        private void button1_Click(object sender, EventArgs e) //will implement to work with the other takeColour function
+        private void button1_Click(object sender, EventArgs e)
         {
             if (buttonState)
             {
@@ -84,13 +74,13 @@ namespace Morse_Code_Solver
                 numOfUnits = 0;
                 listOfColours = new Color[5000];
                 timer2.Enabled = true;
-                isStart = true;
             }
             else
             {
                 timer2.Enabled = false;
                 buttonState = true;
                 string rep = decoder(pseudoMorseToMorse(colourToPseudoMorse()));
+                label2.Text = rep;
             }
         }
 
@@ -104,8 +94,8 @@ namespace Morse_Code_Solver
                     Color tempColour = listOfColours[i];
                     //set default as RGB(0, 6, 16) for black, RGB(255, 237, 59)
 
-            double distance1 = Math.Sqrt(Math.Pow(colour.R, 2) + Math.Pow(colour.G - 6, 2) + Math.Pow(colour.B - 16, 2));
-            double distance2 = Math.Sqrt(Math.Pow(colour.R - 255, 2) + Math.Pow(colour.G - 237, 2) + Math.Pow(colour.B - 59, 2));
+                    double distance1 = Math.Sqrt(Math.Pow(tempColour.R, 2) + Math.Pow(tempColour.G - 6, 2) + Math.Pow(tempColour.B - 16, 2));
+                    double distance2 = Math.Sqrt(Math.Pow(tempColour.R - 255, 2) + Math.Pow(tempColour.G - 237, 2) + Math.Pow(tempColour.B - 59, 2));
 
                     if (distance1 > distance2)
                     {
@@ -123,7 +113,6 @@ namespace Morse_Code_Solver
                 {
                     i = 10001;                                                  //pure band aid fix
                 }
-                //label2.Text += String.Join("", morseLights);
             }
             return morseLights;
         }
@@ -155,15 +144,15 @@ namespace Morse_Code_Solver
                     if (length == 1)
                     {
                         code += ".";                    //appends to code
+                    }
                     else if (length == 2 || length == 3) //error range
-                    else if(length == 2 || length == 3) //error range
                     {
                         code += "-";                    //appends to code
                     }
                 }
                 else
+                {
                     if (length == 3 || length == 4)     //error range
-                    if (length == 3 || length == 4) //error range
                     {
                         morse.Add(code);                //pushes to list as single string
                         code = "";
@@ -178,6 +167,7 @@ namespace Morse_Code_Solver
             }
             return morse;
         }
+
         private string decoder(List<string> codes)                         //decodes each morse string into the corresponding letter
         {
             StringBuilder sb = new StringBuilder();
@@ -199,9 +189,9 @@ namespace Morse_Code_Solver
                     }
                 }
             }
-            return sb.ToString(); 
+            return sb.ToString();
         }
     }
 }
-    //add a lookup table for morse code values :)
-    //5.1, 7.87                                //16.1, 11}
+//(0 6 16) (4 7 13) (7 9 18)              (255 237 59) (255 221 61) (255 226 58)
+//5.1, 7.87                                //16.1, 11

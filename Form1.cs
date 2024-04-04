@@ -195,3 +195,4 @@ namespace Morse_Code_Solver
 }
 //(0 6 16) (4 7 13) (7 9 18)              (255 237 59) (255 221 61) (255 226 58)
 //5.1, 7.87                                //16.1, 11
+//just a comment check to see if my account settings actually work now, cause all my previous commits dont get recognized as me?

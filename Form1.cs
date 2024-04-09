@@ -1,6 +1,7 @@
 using System.Drawing;
 using System.Drawing.Configuration;
 using System.Reflection.Emit;
+using System.Text;
 using System.Threading;
 
 namespace Morse_Code_Solver
@@ -8,8 +9,8 @@ namespace Morse_Code_Solver
     public partial class Form1 : Form
     {
         private Boolean buttonState = true;
-        private List<string> morseLights = new List<string>();
-        private string morse;
+        private Color[] listOfColours;
+        private int numOfUnits = 0;
         private Bitmap bitmap = new Bitmap(1, 1);
 
         private int lightLengthCount = 0;
@@ -26,22 +27,7 @@ namespace Morse_Code_Solver
             InitializeComponent();
         }
 
-        private void timer1_Tick(object sender, EventArgs e)
-        {
-            //takeColour();
-        }
-
-        private void pictureBox1_Click(object sender, EventArgs e)
-        {
-
-        }
-
-        private void label1_Click(object sender, EventArgs e)
-        {
-
-        }
-
-        private void takeColour()   //attempt is being made to make program self detect the end of a word
+        private void takeColour(int n)
         {
             Rectangle bounds = new Rectangle(MousePosition.X, MousePosition.Y, 1, 1);
             using (Graphics graphics = Graphics.FromImage(bitmap))
@@ -51,23 +37,7 @@ namespace Morse_Code_Solver
             //label1.Text = colour.ToString();
             pictureBox1.BackColor = colour;
 
-            string morseLight = ColourToPseudoMorse(colour);
-            morseLights.Add(morseLight);
-
-            if(morseLight.Equals("0"))
-            {
-                ++lightLengthCount;
-            }
-            else
-            {
-                lightLengthCount = 0;
-            }
-            if(lightLengthCount >= 5)
-            {
-                timer2.Enabled = isStart;   //praying this acts like a toggle
-                isStart = !isStart;
-                lightLengthCount = 0;
-            }
+            listOfColours[n] = colour;
         }
 
         private void output()
@@ -91,51 +61,72 @@ namespace Morse_Code_Solver
 
         private void timer2_Tick(object sender, EventArgs e)
         {
-            takeColour();
+            takeColour(numOfUnits);
+            ++numOfUnits;
         }
 
-        private void button1_Click(object sender, EventArgs e) //will implement to work with the other takeColour function
+        private void button1_Click(object sender, EventArgs e)
         {
             if (buttonState)
             {
                 Thread.Sleep(3000);
                 buttonState = false;
                 label2.Text = "";
-                label3.Text = "";   
-                label4.Text = "";
-                morseLights.Clear();
-                morse = "";
+                numOfUnits = 0;
+                listOfColours = new Color[5000];
                 timer2.Enabled = true;
-                isStart = true;
-            }
-        }
-
-        private string ColourToPseudoMorse(Color colour)
-        {
-            //set default as RGB(0, 6, 16) for black, RGB(255, 237, 59)
-
-            double distance1 = Math.Sqrt(Math.Pow(colour.R, 2) + Math.Pow(colour.G - 6, 2) + Math.Pow(colour.B - 16, 2));
-            double distance2 = Math.Sqrt(Math.Pow(colour.R - 255, 2) + Math.Pow(colour.G - 237, 2) + Math.Pow(colour.B - 59, 2));
-
-            if (distance1 > distance2) //this is wacky, but apparently farther away => closer colour???
-            {
-                label3.Text += "1";
-                return "1";
             }
             else
             {
-                label3.Text += "0";
-                return "0";
+                timer2.Enabled = false;
+                buttonState = true;
+                string rep = decoder(pseudoMorseToMorse(colourToPseudoMorse()));
+                label2.Text = rep;
             }
         }
 
-        private void pseudoMorseToMorse()
+        private List<string> colourToPseudoMorse()
         {
+            List<string> morseLights = new List<string>();
+            for (int i = 0; i < listOfColours.Length; ++i)
+            {
+                if (listOfColours[i] != Color.Empty)
+                {
+                    Color tempColour = listOfColours[i];
+                    //set default as RGB(0, 6, 16) for black, RGB(255, 237, 59) for yellow
+
+                    double distance1 = Math.Sqrt(Math.Pow(tempColour.R, 2) + Math.Pow(tempColour.G - 6, 2) + Math.Pow(tempColour.B - 16, 2));
+                    double distance2 = Math.Sqrt(Math.Pow(tempColour.R - 255, 2) + Math.Pow(tempColour.G - 237, 2) + Math.Pow(tempColour.B - 59, 2));
+
+                    if (distance1 > distance2)      //run some sample calculations to check whether math is being correct or not
+                    {
+                        morseLights.Add("1");
+                        label3.Text += "1";
+                    }
+                    else
+                    {
+                        morseLights.Add("0");
+                        label3.Text += "0";
+                    }
+                    label4.Text += distance1 + " " + distance2 + " ";
+                }
+                else
+                {
+                    i = 10001;                                                  //pure band aid fix
+                }
+            }
+            return morseLights;
+        }
+
+        private List<string> pseudoMorseToMorse(List<string> morseLights)
+        {
+            List<string> morse = new List<string>();
             for (int i = 0; i < morseLights.Count; ++i)
             {
                 string symbol = morseLights[i];
                 int length = 0;
                 Boolean condition = true;
+                string code = "";
                 while (condition)
                 {
                     if (i < morseLights.Count && morseLights[i].Equals(symbol))
@@ -153,44 +144,56 @@ namespace Morse_Code_Solver
                 {
                     if (length == 1)
                     {
-                        morse += ".";
+                        code += ".";                    //appends to code
                     }
-                    else if (length == 2 || length == 3 || length == 4) //error range
+                    else if (length == 2 || length == 3) //error range
                     {
-                        morse += "-";
+                        code += "-";                    //appends to code
                     }
                 }
                 else
                 {
-                    if (length == 3 || length == 4 || length == 2) //error range
+                    if (length == 3 || length == 4)     //error range
                     {
-                        morse += "/";
+                        morse.Add(code);                //pushes to list as single string
+                        code = "";
                     }
                     else if (length != 1)
                     {
-                        morse += "|";
+                        morse.Add(code);
+                        morse.Add("|");                 //detects for end of message
+                        code = "";
                     }
                 }
             }
+            return morse;
         }
 
-        private string decoder(string code) //decodes each morse string into the corresponding letter
+        private string decoder(List<string> codes)                         //decodes each morse string into the corresponding letter
         {
+            StringBuilder sb = new StringBuilder();
             for (int i = 0; i < listOfMorseCodeReps.Length; ++i)
             {
-                if (code.Equals(listOfMorseCodeReps[i]))
+                for (int j = 0; j < codes.Count; ++j)
                 {
-                    return ((char)(i + 97)).ToString();
+                    if (codes[j].Equals(listOfMorseCodeReps[i]))            //the lookup table cancer, terribly inneficient ik :(
+                    {
+                        sb.Append((char)(i + 97)).ToString();
+                    }
+                    else if (codes[j].Equals("|"))
+                    {
+                        sb.Append("|");
+                    }
+                    else
+                    {
+                        sb.Append("[uh oh");                                //smth went wrong
+                    }
                 }
             }
-            return "[oof]"; //smth went wrong if this is returned
+            return sb.ToString();
         }
     }
-
-    
 }
-
-    //(0 6 16) (4 7 13) (7 9 18)              (255 237 59) (255 221 61) (255 226 58)
-    //5.1, 7.87                                //16.1, 11
-
-//there is no way this code currently works rn
+//(0 6 16) (4 7 13) (7 9 18)              (255 237 59) (255 221 61) (255 226 58)
+//5.1, 7.87                                //16.1, 11
+//just a comment check to see if my account settings actually work now, cause all my previous commits dont get recognized as me?

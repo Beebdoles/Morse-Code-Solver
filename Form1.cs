@@ -27,21 +27,6 @@ namespace Morse_Code_Solver
             InitializeComponent();
         }
 
-        private void timer1_Tick(object sender, EventArgs e)
-        {
-            //takeColour();
-        }
-
-        private void pictureBox1_Click(object sender, EventArgs e)
-        {
-
-        }
-
-        private void label1_Click(object sender, EventArgs e)
-        {
-
-        }
-
         private void takeColour(int n)
         {
             Rectangle bounds = new Rectangle(MousePosition.X, MousePosition.Y, 1, 1);
@@ -59,7 +44,6 @@ namespace Morse_Code_Solver
         {
             takeColour(numOfUnits);
             ++numOfUnits;
-            //pictureBox2.BackColor
         }
 
         private void button1_Click(object sender, EventArgs e)
@@ -69,8 +53,6 @@ namespace Morse_Code_Solver
                 Thread.Sleep(3000);
                 buttonState = false;
                 label2.Text = "";
-                label3.Text = "";
-                label4.Text = "";
                 numOfUnits = 0;
                 listOfColours = new Color[5000];
                 timer2.Enabled = true;
@@ -92,12 +74,12 @@ namespace Morse_Code_Solver
                 if (listOfColours[i] != Color.Empty)
                 {
                     Color tempColour = listOfColours[i];
-                    //set default as RGB(0, 6, 16) for black, RGB(255, 237, 59)
+                    //set default as RGB(0, 6, 16) for black, RGB(255, 237, 59) for yellow
 
                     double distance1 = Math.Sqrt(Math.Pow(tempColour.R, 2) + Math.Pow(tempColour.G - 6, 2) + Math.Pow(tempColour.B - 16, 2));
                     double distance2 = Math.Sqrt(Math.Pow(tempColour.R - 255, 2) + Math.Pow(tempColour.G - 237, 2) + Math.Pow(tempColour.B - 59, 2));
 
-                    if (distance1 > distance2)
+                    if (distance1 > distance2)      //run some sample calculations to check whether math is being correct or not
                     {
                         morseLights.Add("1");
                         label3.Text += "1";

@@ -9,7 +9,7 @@ namespace Morse_Code_Solver
     {
         private Boolean buttonState = true;
         private List<string> morseLights = new List<string>();
-        private List<string> morse = new List<string>();
+        private string morse;
         private Bitmap bitmap = new Bitmap(1, 1);
 
         private int lightLengthCount = 0;
@@ -58,11 +58,34 @@ namespace Morse_Code_Solver
             {
                 ++lightLengthCount;
             }
+            else
+            {
+                lightLengthCount = 0;
+            }
             if(lightLengthCount >= 5)
             {
                 timer2.Enabled = isStart;   //praying this acts like a toggle
                 isStart = !isStart;
                 lightLengthCount = 0;
+            }
+        }
+
+        private void output()
+        {
+            pseudoMorseToMorse();
+            string[] morses = morse.Split("|");
+            string[] toDecode;
+            if (morse[0].Equals("|"))
+            {
+                toDecode = morses[0].Split("/");
+            }
+            else
+            {
+                toDecode = morses[1].Split("/");
+            }
+            for(int i = 0; i < toDecode.Length; i++) 
+            {
+                label4.Text += decoder(toDecode[i]);
             }
         }
 
@@ -78,10 +101,10 @@ namespace Morse_Code_Solver
                 Thread.Sleep(3000);
                 buttonState = false;
                 label2.Text = "";
-                label3.Text = "";
+                label3.Text = "";   
                 label4.Text = "";
                 morseLights.Clear();
-                morse.Clear();
+                morse = "";
                 timer2.Enabled = true;
                 isStart = true;
             }
@@ -130,22 +153,22 @@ namespace Morse_Code_Solver
                 {
                     if (length == 1)
                     {
-                        morse.Add(".");
+                        morse += ".";
                     }
                     else if (length == 2 || length == 3 || length == 4) //error range
                     {
-                        morse.Add("-");
+                        morse += "-";
                     }
                 }
                 else
                 {
                     if (length == 3 || length == 4 || length == 2) //error range
                     {
-                        morse.Add("/");
+                        morse += "/";
                     }
                     else if (length != 1)
                     {
-                        morse.Add("|");
+                        morse += "|";
                     }
                 }
             }

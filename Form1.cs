@@ -40,25 +40,6 @@ namespace Morse_Code_Solver
             listOfColours[n] = colour;
         }
 
-        private void output()
-        {
-            pseudoMorseToMorse();
-            string[] morses = morse.Split("|");
-            string[] toDecode;
-            if (morse[0].Equals("|"))
-            {
-                toDecode = morses[0].Split("/");
-            }
-            else
-            {
-                toDecode = morses[1].Split("/");
-            }
-            for(int i = 0; i < toDecode.Length; i++) 
-            {
-                label4.Text += decoder(toDecode[i]);
-            }
-        }
-
         private void timer2_Tick(object sender, EventArgs e)
         {
             takeColour(numOfUnits);
@@ -121,12 +102,13 @@ namespace Morse_Code_Solver
         private List<string> pseudoMorseToMorse(List<string> morseLights)
         {
             List<string> morse = new List<string>();
+            StringBuilder s = new StringBuilder();
             for (int i = 0; i < morseLights.Count; ++i)
             {
                 string symbol = morseLights[i];
                 int length = 0;
                 Boolean condition = true;
-                string code = "";
+
                 while (condition)
                 {
                     if (i < morseLights.Count && morseLights[i].Equals(symbol))
@@ -140,29 +122,30 @@ namespace Morse_Code_Solver
                         --i;
                     }
                 }
+
                 if (symbol.Equals("1"))
                 {
                     if (length == 1)
                     {
-                        code += ".";                    //appends to code
+                        s.Append(".");                    //appends to code
                     }
                     else if (length == 2 || length == 3) //error range
                     {
-                        code += "-";                    //appends to code
+                        s.Append("-");                    //appends to code
                     }
                 }
                 else
                 {
                     if (length == 3 || length == 4)     //error range
                     {
-                        morse.Add(code);                //pushes to list as single string
-                        code = "";
+                        morse.Add(s.ToString());                //pushes to list as single string
+                        s.Clear();
                     }
                     else if (length != 1)
                     {
-                        morse.Add(code);
-                        morse.Add("|");                 //detects for end of message
-                        code = "";
+                        morse.Add(s.ToString());
+                        s.Clear();
+                        morse.Add("|");                         //detects end of message
                     }
                 }
             }
@@ -172,23 +155,21 @@ namespace Morse_Code_Solver
         private string decoder(List<string> codes)                         //decodes each morse string into the corresponding letter
         {
             StringBuilder sb = new StringBuilder();
-            for (int i = 0; i < listOfMorseCodeReps.Length; ++i)
+            for (int i = 0; i < codes.Count; ++i)
             {
-                for (int j = 0; j < codes.Count; ++j)
+                for (int j = 0; j < listOfMorseCodeReps.Length; ++j)
                 {
-                    if (codes[j].Equals(listOfMorseCodeReps[i]))            //the lookup table cancer, terribly inneficient ik :(
+                    if (codes[i].Equals(listOfMorseCodeReps[j]))            //the lookup table cancer, terribly inneficient ik :(
                     {
-                        sb.Append((char)(i + 97)).ToString();
+                        sb.Append((char)(j + 97));
                     }
-                    else if (codes[j].Equals("|"))
-                    {
-                        sb.Append("|");
-                    }
-                    else
-                    {
-                        sb.Append("[uh oh");                                //smth went wrong
-                    }
+                    label1.Text += codes[i];
                 }
+                if (codes[i].Equals("|"))
+                {
+                    sb.Append("|");
+                }
+                label1.Text += codes[i];
             }
             return sb.ToString();
         }

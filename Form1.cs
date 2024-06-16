@@ -50,19 +50,65 @@ namespace Morse_Code_Solver
         {
             if (buttonState)
             {
-                Thread.Sleep(3000);
                 buttonState = false;
-                label2.Text = "";
+                button1.Enabled = false;
+                label7.Text = "Click: ";
+                for (int i = 3; i > -1; --i)
+                {
+                    countdown.Text = Convert.ToString(i) + ".";
+                    Task.Delay(333).Wait();
+                    countdown.Text = Convert.ToString(i) + "..";
+                    Task.Delay(333).Wait();
+                    countdown.Text = Convert.ToString(i) + "...";
+                    Task.Delay(333).Wait();
+                }
+                button1.Enabled = true;
+                label4.Text = "Word: ";
                 numOfUnits = 0;
                 listOfColours = new Color[5000];
                 timer2.Enabled = true;
+                button1.Text = "Stop timer";
             }
             else
             {
                 timer2.Enabled = false;
                 buttonState = true;
-                string rep = decoder(pseudoMorseToMorse(colourToPseudoMorse()));
-                label2.Text = rep;
+                label4.Text = "Word: " + decoder(pseudoMorseToMorse(colourToPseudoMorse()));
+                countdown.Text = String.Empty;
+                label7.Text = "Click: " + processSerialNum();
+                button1.Text = "Start timer";
+            }
+        }
+
+        private String processSerialNum()
+        {
+            if(serialTextbox.Text.Contains("A"))
+            {
+                return "Yellow";
+            }
+            else if(serialTextbox.Text.Contains("6"))
+            {
+                return "Blue";
+            }
+            else if(serialTextbox.Text.Contains("D"))
+            {
+                return "Blue";
+            }
+            else if(serialTextbox.Text.Contains("8"))
+            {
+                return "Blue";
+            }
+            else if(serialTextbox.Text.Contains("I"))
+            {
+                return "Yellow";
+            }
+            else if(serialTextbox.Text.Contains("1"))
+            {
+                return "Yellow";
+            }
+            else
+            {
+                return "Blue";
             }
         }
 
@@ -79,15 +125,13 @@ namespace Morse_Code_Solver
                     double distance1 = Math.Sqrt(Math.Pow(tempColour.R, 2) + Math.Pow(tempColour.G - 6, 2) + Math.Pow(tempColour.B - 16, 2));
                     double distance2 = Math.Sqrt(Math.Pow(tempColour.R - 255, 2) + Math.Pow(tempColour.G - 237, 2) + Math.Pow(tempColour.B - 59, 2));
 
-                    if (distance1 > distance2)      //run some sample calculations to check whether math is being correct or not
+                    if (distance1 > distance2)
                     {
                         morseLights.Add("1");
-                        label3.Text += "1";
                     }
                     else
                     {
                         morseLights.Add("0");
-                        label3.Text += "0";
                     }
                     label4.Text += distance1 + " " + distance2 + " ";
                 }
@@ -163,15 +207,18 @@ namespace Morse_Code_Solver
                     {
                         sb.Append((char)(j + 97));
                     }
-                    label1.Text += codes[i];
                 }
                 if (codes[i].Equals("|"))
                 {
                     sb.Append("|");
                 }
-                label1.Text += codes[i];
             }
             return sb.ToString();
+        }
+
+        private void pictureBox1_Click(object sender, EventArgs e)
+        {
+
         }
     }
 }
